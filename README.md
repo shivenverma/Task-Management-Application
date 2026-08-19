@@ -184,6 +184,6 @@ To test the application end-to-end:
 1. Run `npm run seed` in terminal.
 2. Start the application with `npm run dev`.
 3. Open `http://localhost:5173` in your browser.
-4. Click **"Fill Demo Credentials"** on the login page and sign in.
+4. Register a new user or sign in with your registered account.
 5. Create, edit, search, filter, and delete tasks.
 6. Verify overdue task badge highlight for tasks past their due date.

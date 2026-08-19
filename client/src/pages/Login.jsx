@@ -6,7 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, authError, setAuthError } = useAuth();
+  const { login, authError } = useAuth();
   const { isDark, toggleTheme } = useTheme();
 
   const [email, setEmail] = useState('');
@@ -42,13 +42,6 @@ const Login = () => {
     if (result.success) {
       navigate('/dashboard');
     }
-  };
-
-  const handleFillDemo = () => {
-    setEmail('demo@example.com');
-    setPassword('Demo@123');
-    setErrors({});
-    if (authError) setAuthError(null);
   };
 
   return (
@@ -175,16 +168,7 @@ const Login = () => {
             </button>
           </form>
 
-          {/* Quick Demo Fill Helper */}
-          <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800/80 text-center">
-            <button
-              type="button"
-              onClick={handleFillDemo}
-              className="w-full py-2 px-3 bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-brand-600 dark:text-brand-400 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700/60 transition-colors"
-            >
-              ⚡ Fill Demo Credentials (demo@example.com)
-            </button>
-          </div>
+
         </div>
 
         {/* Footer Registration Link */}
