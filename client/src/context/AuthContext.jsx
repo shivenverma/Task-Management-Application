@@ -39,6 +39,23 @@ export const AuthProvider = ({ children }) => {
     return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
   }, []);
 
+  const extractErrorMessage = (err, defaultMsg) => {
+    if (err.response?.data) {
+      if (typeof err.response.data.message === 'string') return err.response.data.message;
+      if (typeof err.response.data.error === 'string') return err.response.data.error;
+      if (Array.isArray(err.response.data.errors) && err.response.data.errors.length > 0) {
+        return err.response.data.errors[0].message;
+      }
+      if (typeof err.response.data === 'string' && err.response.data.length < 300) {
+        return err.response.data;
+      }
+    }
+    if (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
+      return 'Cannot connect to backend server. Please verify the server is running.';
+    }
+    return err.message || defaultMsg;
+  };
+
   const login = async (email, password) => {
     setAuthError(null);
     try {
@@ -54,7 +71,7 @@ export const AuthProvider = ({ children }) => {
       initSocketClient(newToken);
       return { success: true };
     } catch (err) {
-      const msg = err.response?.data?.message || 'Login failed. Please check credentials.';
+      const msg = extractErrorMessage(err, 'Login failed. Please check credentials.');
       setAuthError(msg);
       return { success: false, message: msg };
     }
@@ -75,7 +92,7 @@ export const AuthProvider = ({ children }) => {
       initSocketClient(newToken);
       return { success: true };
     } catch (err) {
-      const msg = err.response?.data?.message || 'Registration failed. Please try again.';
+      const msg = extractErrorMessage(err, 'Registration failed. Please try again.');
       setAuthError(msg);
       return { success: false, message: msg };
     }

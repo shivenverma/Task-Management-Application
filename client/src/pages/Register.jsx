@@ -6,7 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { register, authError } = useAuth();
+  const { register, authError, setAuthError } = useAuth();
   const { isDark, toggleTheme } = useTheme();
 
   const [name, setName] = useState('');
@@ -110,6 +110,7 @@ const Register = () => {
                   onChange={(e) => {
                     setName(e.target.value);
                     if (errors.name) setErrors({ ...errors, name: null });
+                    if (authError) setAuthError(null);
                   }}
                   placeholder="John Doe"
                   className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
@@ -139,6 +140,7 @@ const Register = () => {
                   onChange={(e) => {
                     setEmail(e.target.value);
                     if (errors.email) setErrors({ ...errors, email: null });
+                    if (authError) setAuthError(null);
                   }}
                   placeholder="name@example.com"
                   className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
@@ -168,6 +170,7 @@ const Register = () => {
                   onChange={(e) => {
                     setPassword(e.target.value);
                     if (errors.password) setErrors({ ...errors, password: null });
+                    if (authError) setAuthError(null);
                   }}
                   placeholder="At least 6 characters"
                   className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800/80 border rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
@@ -204,6 +207,7 @@ const Register = () => {
                   onChange={(e) => {
                     setConfirmPassword(e.target.value);
                     if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: null });
+                    if (authError) setAuthError(null);
                   }}
                   placeholder="Re-enter your password"
                   className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${

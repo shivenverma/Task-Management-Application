@@ -6,7 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, authError } = useAuth();
+  const { login, authError, setAuthError } = useAuth();
   const { isDark, toggleTheme } = useTheme();
 
   const [email, setEmail] = useState('');
@@ -98,6 +98,7 @@ const Login = () => {
                   onChange={(e) => {
                     setEmail(e.target.value);
                     if (errors.email) setErrors({ ...errors, email: null });
+                    if (authError) setAuthError(null);
                   }}
                   placeholder="name@example.com"
                   className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
@@ -127,6 +128,7 @@ const Login = () => {
                   onChange={(e) => {
                     setPassword(e.target.value);
                     if (errors.password) setErrors({ ...errors, password: null });
+                    if (authError) setAuthError(null);
                   }}
                   placeholder="••••••••"
                   className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800/80 border rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
