@@ -1,0 +1,20 @@
+{
+  "name": "task-management-app",
+  "version": "1.0.0",
+  "description": "Full-stack Task Management Application with Express, MongoDB, React, Vite, Tailwind CSS & Socket.IO",
+  "main": "server/server.js",
+  "scripts": {
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "seed": "cd server && npm run seed",
+    "start": "cd server && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
