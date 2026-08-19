@@ -46,9 +46,12 @@ export const AuthProvider = ({ children }) => {
       if (Array.isArray(err.response.data.errors) && err.response.data.errors.length > 0) {
         return err.response.data.errors[0].message;
       }
-      if (typeof err.response.data === 'string' && err.response.data.length < 300) {
+      if (typeof err.response.data === 'string' && err.response.data.length < 300 && !err.response.data.includes('<!DOCTYPE')) {
         return err.response.data;
       }
+    }
+    if (err.response?.status === 404) {
+      return 'Backend API route not found (404). Please ensure the backend server or Netlify function is running.';
     }
     if (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
       return 'Cannot connect to backend server. Please verify the server is running.';
