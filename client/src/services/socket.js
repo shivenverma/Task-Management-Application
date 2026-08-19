@@ -10,9 +10,9 @@ export const initSocketClient = (token) => {
   }
 
   // Connect to backend Socket server
-  const serverUrl = window.location.origin.includes('5173')
+  const serverUrl = import.meta.env.VITE_SOCKET_URL || (window.location.origin.includes('5173')
     ? 'http://localhost:5000'
-    : window.location.origin;
+    : window.location.origin);
 
   socket = io(serverUrl, {
     auth: { token },
