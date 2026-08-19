@@ -9,10 +9,13 @@
     "client": "cd client && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "build": "cd client && npm install && npm run build",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
     "seed": "cd server && npm run seed",
     "start": "cd server && npm start"
   },
   "dependencies": {
+    "@prisma/client": "^5.14.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -25,7 +28,8 @@
     "socket.io": "^4.7.5"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "prisma": "^5.14.0"
   },
   "keywords": [],
   "author": "",

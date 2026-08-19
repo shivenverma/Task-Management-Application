@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 let isConnected = false;
 
 const connectDB = async () => {
+  if (process.env.DATABASE_URL) {
+    console.log('[Database] Operating with Neon PostgreSQL via Prisma (DATABASE_URL configured).');
+    return;
+  }
+
   // Return early if already connected (reuse connection in serverless warm starts)
   if (isConnected && mongoose.connection.readyState === 1) {
     console.log('[Database] Reusing existing MongoDB connection.');
@@ -12,7 +17,6 @@ const connectDB = async () => {
   const connUri = process.env.MONGODB_URI;
 
   if (connUri) {
-    // Production: use provided MongoDB URI (e.g. MongoDB Atlas)
     try {
       await mongoose.connect(connUri, {
         serverSelectionTimeoutMS: 10000,
@@ -24,7 +28,6 @@ const connectDB = async () => {
       throw err;
     }
   } else {
-    // Local development: use in-memory MongoDB fallback
     try {
       await mongoose.connect('mongodb://localhost:27017/taskmanager', {
         serverSelectionTimeoutMS: 3000,

@@ -1,5 +1,9 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const prisma = require('../config/prisma');
 const User = require('../models/User');
+
+const isPrisma = () => !!process.env.DATABASE_URL;
 
 // Helper to generate JWT token
 const generateToken = (id) => {
@@ -16,17 +20,42 @@ const generateToken = (id) => {
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    const cleanEmail = email.toLowerCase().trim();
 
-    // Check if user already exists
-    const userExists = await User.findOne({ email: email.toLowerCase() });
+    if (isPrisma()) {
+      const userExists = await prisma.user.findUnique({ where: { email: cleanEmail } });
+      if (userExists) {
+        return res.status(400).json({ message: 'User with this email already exists' });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      const user = await prisma.user.create({
+        data: {
+          name,
+          email: cleanEmail,
+          password: hashedPassword,
+        },
+      });
+
+      return res.status(201).json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        token: generateToken(user.id),
+      });
+    }
+
+    // Fallback Mongoose logic
+    const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
-    // Create user
     const user = await User.create({
       name,
-      email: email.toLowerCase(),
+      email: cleanEmail,
       password,
     });
 
@@ -42,7 +71,7 @@ const registerUser = async (req, res) => {
     }
   } catch (error) {
     console.error('[Register Controller Error]:', error);
-    if (error.code === 11000) {
+    if (error.code === 'P2002' || error.code === 11000) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
     return res.status(500).json({ message: 'Server error during registration', error: error.message });
@@ -55,10 +84,24 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const cleanEmail = email.toLowerCase().trim();
 
-    // Find user by email and include password for verification
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    if (isPrisma()) {
+      const user = await prisma.user.findUnique({ where: { email: cleanEmail } });
+      if (user && (await bcrypt.compare(password, user.password))) {
+        return res.json({
+          _id: user.id,
+          name: user.name,
+          email: user.email,
+          token: generateToken(user.id),
+        });
+      } else {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+    }
 
+    // Fallback Mongoose logic
+    const user = await User.findOne({ email: cleanEmail }).select('+password');
     if (user && (await user.matchPassword(password))) {
       return res.json({
         _id: user._id,
@@ -80,7 +123,24 @@ const loginUser = async (req, res) => {
 // @access  Private
 const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const userId = req.user._id || req.user.id;
+
+    if (isPrisma()) {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      return res.json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        createdAt: user.createdAt,
+      });
+    }
+
+    // Fallback Mongoose logic
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
