@@ -2,45 +2,38 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const serverless = require('serverless-http');
+const path = require('path');
 
-// Lazy-load DB connection
-let isConnected = false;
-const connectDB = require('../../server/config/db');
+// Resolve server directory relative to repo root
+const serverDir = path.resolve(__dirname, '../../server');
 
-const authRoutes = require('../../server/routes/authRoutes');
-const taskRoutes = require('../../server/routes/taskRoutes');
-const { notFound, errorHandler } = require('../../server/middleware/errorMiddleware');
+const connectDB = require(path.join(serverDir, 'config/db'));
+const authRoutes = require(path.join(serverDir, 'routes/authRoutes'));
+const taskRoutes = require(path.join(serverDir, 'routes/taskRoutes'));
+const { notFound, errorHandler } = require(path.join(serverDir, 'middleware/errorMiddleware'));
 
 const app = express();
 
-// Ensure DB connects once (reused across warm lambda invocations)
-const ensureDB = async () => {
-  if (!isConnected) {
-    await connectDB();
-    isConnected = true;
-  }
-};
-
+let dbConnected = false;
 app.use(async (req, res, next) => {
-  await ensureDB();
+  if (!dbConnected) {
+    await connectDB();
+    dbConnected = true;
+  }
   next();
 });
 
-// Middleware
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check
 app.get('/api', (req, res) => {
   res.json({ message: 'Task Management API Service Operational', version: '1.0.0' });
 });
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 
-// Error Handling
 app.use(notFound);
 app.use(errorHandler);
 
